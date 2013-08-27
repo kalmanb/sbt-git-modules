@@ -10,22 +10,47 @@ import scalaz.NonEmptyList
 object GitBuildPlugin extends Plugin {
   import SbtExecutor._
 
+  case class LocalProject(name: String, organization: String, version: String, dependencies: Seq[LocalProject])
+
   val kalKey = TaskKey[Unit]("kal")
   val gitModuleSettings = Seq[Setting[_]](
     kalKey <<= (loadedBuild, buildStructure, state) map {
-      (level, base, state) ⇒
+      (level, structure, state) ⇒
 
-        val aaaa: Seq[Validation[Seq[ModuleID]]] = for {
-          ref ← getStructure(state).allProjectRefs
-          project ← Project.getProject(ref, getStructure(state))
-        } yield externalDependencies(ref, state)
-
-        val dependencies = aaaa foreach { validation ⇒
-          validation match {
-            case Success(a)   ⇒ a foreach (module ⇒ println(module.organization + " " + module.name + " " + module.revision))
-            case Failure(err) ⇒ println(err)
+        val modules =  for {
+          ref ← structure.allProjectRefs
+        } yield {
+          val dependencies: Validation[Seq[ModuleID]] = externalDependencies(ref, state)
+          dependencies map { validation ⇒
+              validation  map (module ⇒ LocalProject(module.name, module.organization, module.revision, List.empty))
           }
         }
+        println(modules)
+
+        println("***************** Getting Projects")
+        val projects = for {
+          ref ← getStructure(state).allProjectRefs // ProjectRef
+          project ← Project.getProject(ref, getStructure(state)) // ResolvedProject
+        } yield project.id
+        println(projects)
+
+        val localProjects = for {
+          ref ← structure.allProjectRefs // ProjectRef
+          project ← Project.getProject(ref, structure) // ResolvedProject
+        } yield {
+          project.settings map { setting ⇒
+            val label = setting.key.key.label
+            if (label == "version") {
+              val value = Project.extract(state).getOpt(SettingKey(setting.key.key))
+              value match {
+                case Some(version: String) ⇒ Some(LocalProject(project.id, "com.kalmanb", version, List.empty))
+                case None                  ⇒ None
+              }
+            } else None
+          }
+        }
+        val tt = localProjects.flatten.flatten
+        println(tt)
     }
   )
 
@@ -52,11 +77,11 @@ object SbtExecutor {
   type Validation[A] = scalaz.Validation[NonEmptyList[String], A]
   def getStructure(state: State): BuildStructure = Project.extract(state).structure
 
-  def setting[A](key: SettingKey[A], state: State): Validation[A] =
-    key get getStructure(state).data match {
-      case Some(a) ⇒ a.success
-      case None    ⇒ "Undefined setting '%s'!".format(key.key).failNel
-    }
+  //def setting[A](key: SettingKey[A], state: State): Validation[A] =
+  //key get getStructure(state).data match {
+  //case Some(a) ⇒ a.success
+  //case None    ⇒ "Undefined setting '%s'!".format(key.key).failNel
+  //}
 
   def evaluateTask[A](key: TaskKey[A], ref: ProjectRef, state: State): Validation[A] = {
     val result: Validation[A] = EvaluateTask(getStructure(state), key, state, ref, EvaluateTask defaultConfig state) match {

@@ -31,7 +31,8 @@ object SbtJenkins extends Build {
     base = file("moduletwo"),
     settings = Seq(
       organization := Org,
-      version := buildVersion,
+      version := buildVersion,  
+      description := "testme",
       libraryDependencies ++= Seq(Org %% "moduleone" % buildVersion)
     ) ++ defaultSettings
   )
