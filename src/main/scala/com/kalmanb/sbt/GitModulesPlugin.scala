@@ -7,7 +7,7 @@ import scalaz.Failure
 import sbt.Load.BuildStructure
 import scalaz.NonEmptyList
 
-object GitBuildPlugin extends Plugin {
+object GitModulesPlugin extends Plugin {
   import SbtExecutor._
 
   case class LocalProject(name: String, organization: String, version: String, dependencies: Seq[LocalProject])
