@@ -6,7 +6,7 @@ import scala.sys.process._
 import org.scalatest._
 
 class GitDependenciesTest extends FunSpec with BeforeAndAfterAll with ShouldMatchers {
-  import GitBuildPlugin._
+  import GitDependencies._
 
   /**
    *     C---        <-- two
@@ -23,7 +23,7 @@ class GitDependenciesTest extends FunSpec with BeforeAndAfterAll with ShouldMatc
 
   val Dir = "git-tmp-test"
   var mergeCommitSha = ""
-  var A,B,C,D,E,H = ""
+  var A, B, C, D, E, H = ""
 
   override def beforeAll() {
     "mkdir -p %s".format(Dir).!!
@@ -58,37 +58,37 @@ class GitDependenciesTest extends FunSpec with BeforeAndAfterAll with ShouldMatc
     doo("git tag " + ver)
   }
 
-  def doo(cmd: String):String = {
+  def doo(cmd: String): String = {
     implicit def stringToProcess(cmd: String) = Process(cmd, Some(new File(Dir)))
     cmd.!!
   }
 
   describe("git commit on the current branch") {
     it("should select the correct newer branch") {
-     // Should be : H-G-F-C-D-B-E-A
-     val shas = getCommitsInOrder(new File(Dir)).toList
-     shas(0) should be (getShaForTag("H"))
-     shas(1) should be (mergeCommitSha)
-     shas(3) should be (getShaForTag("C"))
-     shas(4) should be (getShaForTag("D"))
-     shas(5) should be (getShaForTag("B"))
-     shas(6) should be (getShaForTag("E"))
+      // Should be : H-G-F-C-D-B-E-A
+      val shas = getCommitsInOrder(new File(Dir)).toList
+      shas(0) should be(getShaForTag("H"))
+      shas(1) should be(mergeCommitSha)
+      shas(3) should be(getShaForTag("C"))
+      shas(4) should be(getShaForTag("D"))
+      shas(5) should be(getShaForTag("B"))
+      shas(6) should be(getShaForTag("E"))
     }
-    
+
     it("Should sort given commits") {
-    val sorted = sortCommits(List(A, B, C, D, E, H), new File(Dir))
-    
-    // Should be : H-G-F-C-D-B-E-A
-    sorted(H) should be (0)
-    sorted(C) should be (1)
-    sorted(D) should be (2)
-    sorted(B) should be (3)
-    sorted(E) should be (4)
-    sorted(A) should be (5)
+      val sorted = sortCommits(List(A, B, C, D, E, H), new File(Dir))
+
+      // Should be : H-G-F-C-D-B-E-A
+      sorted(H) should be(0)
+      sorted(C) should be(1)
+      sorted(D) should be(2)
+      sorted(B) should be(3)
+      sorted(E) should be(4)
+      sorted(A) should be(5)
     }
   }
 
-  def getShaForTag(tag: String) : String=
+  def getShaForTag(tag: String): String =
     doo("git rev-parse %s".format(tag)).trim
 
   override def afterAll() {

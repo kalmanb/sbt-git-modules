@@ -1,8 +1,8 @@
 organization := "com.kalmanb"
             
-name := "sbt-git-modules"
+name := "sbt-git-dependencies"
 
-version := "0.1.0-SNAPSHOT"
+version := "0.1.0"
 
 sbtPlugin := true
 
