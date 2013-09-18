@@ -2,7 +2,7 @@ organization := "com.kalmanb"
             
 name := "sbt-git-dependencies"
 
-version := "0.2.0"
+version := "0.2.1-SNAPSHOT"
 
 sbtPlugin := true
 
