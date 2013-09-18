@@ -10,7 +10,10 @@ object GitDependencies {
    */
   def sortCommits(shas: Seq[String], repoDir: File = new File(".")): Map[String, Int] = {
     def work(remainingShas: Seq[String], ordered: Stream[String], current: Map[String, Int]): Map[String, Int] = {
-      if (remainingShas.isEmpty)
+      if (ordered.isEmpty) {
+        println("WARNING: a module has been created without a commit")
+        current
+      } else if (remainingShas.isEmpty)
         current
       else if (remainingShas.contains(ordered.head))
         work(remainingShas.filterNot(_ == ordered.head), ordered.tail, current + (ordered.head -> current.size))
