@@ -2,7 +2,7 @@ organization := "com.kalmanb"
             
 name := "sbt-git-dependencies"
 
-version := "0.1.0"
+version := "0.1.1"
 
 sbtPlugin := true
 
@@ -17,7 +17,7 @@ publishArtifact in Test := false
 // scalaVersion in Global := "2.10.2"
 scalaVersion in Global := "2.9.2"
 
-publishTo := Some(Resolver.url("repo", url("http://"))(Resolver.ivyStylePatterns))
+//publishTo := Some(Resolver.url("repo", url("http://"))(Resolver.ivyStylePatterns))
 
 libraryDependencies ++= Seq(
   "org.scalaz"  %% "scalaz-core"  % "6.0.4", 
